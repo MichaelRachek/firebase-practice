@@ -1,0 +1,15 @@
+a {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover,
+a:active {
+  color: lightgray;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
