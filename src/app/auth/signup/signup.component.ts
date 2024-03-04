@@ -7,6 +7,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -30,21 +31,27 @@ export class SignupComponent implements OnInit {
   public maxDate: Date;
   public form!: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder,
+              private auth: AuthService) { }
 
   ngOnInit() {
     this.maxDate = new Date();
     this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
 
+    this.createForm();
+  }
+
+  onSubmit() {
+    this.auth.registerUser({email: this.form.value.email, userId: '1000'});
+    console.log(this.form);
+  }
+
+  private createForm(): void {
     this.form = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       birthdate: ['', Validators.required],
       agree: ['', Validators.required],
     });
-  }
-
-  onSubmit() {
-    console.log(this.form);
   }
 }

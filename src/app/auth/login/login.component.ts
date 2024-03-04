@@ -4,6 +4,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButton } from '@angular/material/button';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,16 +16,21 @@ import { MatButton } from '@angular/material/button';
 export class LoginComponent implements OnInit {
   public loginForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
 
   ngOnInit() {
+    this.createForm();
+  }
+
+  onSubmit() {
+    const { email, password } = this.loginForm.value;
+    this.auth.login({email, password});
+  }
+
+  private createForm(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
-  }
-
-  onSubmit() {
-    console.log(this.loginForm);
   }
 }
