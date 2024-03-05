@@ -22,6 +22,10 @@ export class AuthService {
   }
 
   public login(data: AuthData): void {
+    this.user = {
+      email: data.email,
+      userId: String(1000)
+    }
     this.authSuccessfully();
   }
 
@@ -37,7 +41,7 @@ export class AuthService {
   }
 
   public isAuth(): boolean {
-    return this.user !== null;
+    return !!this.user;
   }
 
   public onAuthChange = () => this.authChange.asObservable();
