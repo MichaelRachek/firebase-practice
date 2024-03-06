@@ -1,9 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { StopTrainingComponent } from './stop-training/stop-training.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { ExercisesService } from '../exercises.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-current-training',
@@ -15,27 +17,18 @@ import { FlexLayoutModule } from '@angular/flex-layout';
   styleUrl: './current-training.component.scss'
 })
 export class CurrentTrainingComponent implements OnInit {
-  @Output() trainingExit = new EventEmitter();
-  progress = 0;
+  public progress = 0;
   // @ts-ignore
-  timer;
+  private timer;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog,
+              private exercisesService: ExercisesService) {}
 
   ngOnInit() {
     this.startOrResumeTimer();
   }
 
-  startOrResumeTimer() {
-    this.timer = setInterval(() => {
-      this.progress = this.progress + 5;
-      if (this.progress >= 100) {
-        clearInterval(this.timer);
-      }
-    }, 1000);
-  }
-
-  onStop() {
+  public onStop() {
     clearInterval(this.timer);
     const dialogRef = this.dialog.open(StopTrainingComponent, {
       data: {
@@ -43,12 +36,25 @@ export class CurrentTrainingComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+      .pipe(take(1))
+      .subscribe(result => {
       if (result) {
-        this.trainingExit.emit();
+        this.exercisesService.cancelExercise(this.progress)
       } else {
         this.startOrResumeTimer();
       }
     });
+  }
+
+  private startOrResumeTimer() {
+    const sep = this.exercisesService.getRunningExercise().duration / 100 * 1000;
+    this.timer = setInterval(() => {
+      this.progress = this.progress + 5;
+      if (this.progress >= 100) {
+        this.exercisesService.completeExercise();
+        clearInterval(this.timer);
+      }
+    }, sep);
   }
 }
