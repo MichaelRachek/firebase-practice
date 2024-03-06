@@ -4,8 +4,7 @@ import { NewTrainingComponent } from './new-training/new-training.component';
 import { PastTrainingsComponent } from './past-trainings/past-trainings.component';
 import { CurrentTrainingComponent } from './current-training/current-training.component';
 import { ExercisesService } from './exercises.service';
-import { map, Observable, tap } from 'rxjs';
-import { Exercise } from './traning.model';
+import { map, Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
