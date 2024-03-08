@@ -1,30 +1,38 @@
 import { Injectable } from '@angular/core';
 import { Exercise } from './traning.model';
-import { Observable, of, Subject } from 'rxjs';
+import { map, Observable, Subject, tap } from 'rxjs';
+import { addDoc, collection, collectionData, Firestore } from '@angular/fire/firestore';
+
+// this is an query example
+// const queryRef = query(dbCollection, where('calories', '==', 10));
+
+// updateDoc Example
+// const docRef = doc(this.firestore, `availableExercises/${selectedId}`);
+// setDoc(docRef, { fieldName: 'Updated Value' }, {merge: true});
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExercisesService {
-  private availableExercises: Exercise[] = [
-    {id: 'crunches', name: 'Crunches', duration: 30, calories: 8},
-    {id: 'touch-toes', name: 'Touch Toes', duration: 30, calories: 8},
-    {id: 'side-lunges', name: 'Side Lunges', duration: 30, calories: 8}
-  ];
-
-  private exercises: Exercise[] = [];
+  private availableExercises: Exercise[] = [];
 
   private runningExercise!: Exercise;
   private exerciseChanged$ = new Subject<Exercise>();
+  private readonly finishedExercisesDbRef = collection(this.firestore, 'finishedExercises');
+  private readonly availableExercisesDbRef = collection(this.firestore, 'availableExercises');
 
-  constructor() { }
+  constructor(private firestore: Firestore) { }
 
-  public getExercises(): Observable<Exercise[]> {
-    return of(this.availableExercises.slice());
+  public fetchExercises(): Observable<Exercise[]> {
+    // @ts-ignore
+    return collectionData<Exercise>(this.availableExercisesDbRef, {idField: 'uuid'}).pipe(
+      map(arr => arr.map(this.transformToExerciseWithId)),
+      tap((items: Exercise[]) => this.availableExercises = [...items])
+    ) as Observable<Exercise[]>;
   }
 
   public selectExercise(selectedId: string): void {
-    const runningExercise = this.availableExercises.find(ex => ex.id === selectedId);
+    const runningExercise = this.availableExercises.find(ex => ex.uuid === selectedId);
     // @ts-ignore
     this.runningExercise = runningExercise;
     // @ts-ignore
@@ -40,7 +48,7 @@ export class ExercisesService {
   }
 
   public completeExercise() {
-    this.exercises.push({...this.runningExercise, date: new Date(), state: 'completed'});
+    this.addToDataBase({...this.runningExercise, date: new Date(), state: 'completed'});
     // @ts-ignore
     this.runningExercise = undefined;
 
@@ -49,7 +57,7 @@ export class ExercisesService {
   }
 
   public cancelExercise(process: number) {
-    this.exercises.push({
+    this.addToDataBase({
       ...this.runningExercise,
       date: new Date(),
       state: 'cancelled',
@@ -63,7 +71,19 @@ export class ExercisesService {
     this.exerciseChanged$.next(undefined);
   }
 
-  public getCompletedOrCancelledExercises() {
-    return this.exercises.slice();
+  public fetchCompletedOrCancelledExercises() {
+    // @ts-ignore
+    return collectionData<Exercise>(this.finishedExercisesDbRef, {idField: 'uuid'}).pipe(
+      map(arr => arr.map(this.transformToExerciseWithId)),
+    ) as Observable<Exercise[]>;
+
+  }
+
+  private transformToExerciseWithId(doc: Exercise, index: number): Exercise {
+    return {...doc, id: index.toString()};
+  }
+
+  private addToDataBase(exercise: Exercise) {
+    addDoc(this.finishedExercisesDbRef, exercise);
   }
 }

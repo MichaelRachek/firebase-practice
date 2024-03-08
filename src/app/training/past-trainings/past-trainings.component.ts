@@ -8,7 +8,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatInputModule } from '@angular/material/input';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { startWith, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-past-trainings',
@@ -30,7 +30,7 @@ export class PastTrainingsComponent implements AfterViewInit, OnInit, OnDestroy 
   public displayedColumns = ['date', 'name', 'duration', 'calories', 'state'];
   public dataSource = new MatTableDataSource<Exercise>();
   public ctrl = new FormControl('');
-  private destroy$!: Subject<void>;
+  private destroy$ = new Subject<void>;
 
   @ViewChild(MatSort) public sort!: MatSort;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
@@ -38,7 +38,10 @@ export class PastTrainingsComponent implements AfterViewInit, OnInit, OnDestroy 
   constructor(private trainingService: ExercisesService) {}
 
   ngOnInit() {
-    this.dataSource.data = this.trainingService.getCompletedOrCancelledExercises();
+    this.trainingService.fetchCompletedOrCancelledExercises()
+      .subscribe(resp =>  {
+        this.dataSource.data = resp;
+      });
     this.doFilter();
   }
 
@@ -54,7 +57,7 @@ export class PastTrainingsComponent implements AfterViewInit, OnInit, OnDestroy 
 
   private doFilter() {
     this.ctrl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), startWith(''))
       .subscribe(val => {
         this.dataSource.filter = val || '';
       });

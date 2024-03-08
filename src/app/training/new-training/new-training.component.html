@@ -5,8 +5,8 @@
       <form [formGroup]="form">
         <mat-form-field>
           <mat-select placeholder="Choose Exercise" formControlName="exercise">
-            @for (item of exercises$ | async; track item.id) {
-              <mat-option [value]="item?.id">
+            @for (item of exercises$ | async; track item.uuid) {
+              <mat-option [value]="item?.uuid">
                 {{item?.name}}
               </mat-option>
             }

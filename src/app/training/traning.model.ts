@@ -5,6 +5,7 @@ export interface Exercise {
   calories: number;
   date?: Date;
   state?: ExerciseState;
+  uuid: string;
 }
 
 export type ExerciseState = 'completed' | 'cancelled' | null;

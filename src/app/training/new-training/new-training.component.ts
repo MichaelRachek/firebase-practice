@@ -28,12 +28,17 @@ export class NewTrainingComponent implements OnInit {
     this.form = this.fb.group({
       exercise: ['', [Validators.required]]
     });
-    this.exercises$ = this.exercisesService.getExercises();
+
+    this.loadData();
   }
 
   onStartTraining() {
     const { exercise } = this.form.value;
     this.exercisesService.selectExercise(exercise);
+  }
+
+  private loadData(): void {
+    this.exercises$ = this.exercisesService.fetchExercises();
   }
 
 }
