@@ -33,4 +33,8 @@ export class SidenavListComponent {
     this.authService.logout();
   }
 
+  isAuth(): boolean {
+      return this.authService.isAuth();
+  }
+
 }

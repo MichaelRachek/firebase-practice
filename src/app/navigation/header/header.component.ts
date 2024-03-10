@@ -34,7 +34,6 @@ export class HeaderComponent {
   }
 
   logout() {
-    this. onToggleSidenav();
     this.authService.logout();
   }
 }

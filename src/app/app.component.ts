@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { HeaderComponent } from './navigation/header/header.component';
 import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.component';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,12 @@ import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.com
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
-  title = 'firebase-practice';
+export class AppComponent implements OnInit {
+
+  constructor(private authService: AuthService) {
+  }
+
+  ngOnInit() {
+    this.authService.onAuthStateChanged();
+  }
 }

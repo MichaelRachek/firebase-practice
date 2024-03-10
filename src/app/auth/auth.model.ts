@@ -1,6 +1,8 @@
 export interface User {
-  email: string;
-  userId: string;
+  email: string,
+  password: string,
+  birthdate: string,
+  agree: boolean
 }
 
 export interface AuthData {

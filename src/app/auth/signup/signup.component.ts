@@ -42,8 +42,7 @@ export class SignupComponent implements OnInit {
   }
 
   onSubmit() {
-    this.auth.registerUser({email: this.form.value.email, userId: '1000'});
-    console.log(this.form);
+    this.auth.registerUser(this.form.value);
   }
 
   private createForm(): void {
