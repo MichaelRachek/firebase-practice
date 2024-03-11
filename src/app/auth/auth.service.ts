@@ -9,6 +9,8 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from '@angular/fire/auth';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UIService } from '../shared/ui.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +18,11 @@ import {
 export class AuthService {
   private authChange = new Subject<boolean>();
   private isLoggedIn = false;
-  constructor(private router: Router, private auth: Auth) {
+  constructor(private router: Router,
+              private auth: Auth,
+              private snackbar: MatSnackBar,
+              private UIService: UIService
+              ) {
   }
 
   public onAuthStateChanged(): void {
@@ -34,24 +40,28 @@ export class AuthService {
   public registerUser(data: User): void {
     const {email, password } = data;
 
+    this.UIService.setUiSubject(true);
     createUserWithEmailAndPassword(this.auth, email, password)
       .then(() => {
-        console.log('Sign in')
+        this.UIService.setUiSubject(false);
       })
       .catch((error) => {
-        console.log('Error');
+        this.UIService.setUiSubject(false);
+        this.showNotification(error);
       })
 
   }
 
   public login(data: AuthData): void {
     const { email, password } = data;
+    this.UIService.setUiSubject(true);
     signInWithEmailAndPassword(this.auth, email, password)
-      .then((userCredential) => {
-        console.log('Logged in');
+      .then(() => {
+        this.UIService.setUiSubject(false);
       })
       .catch((error) => {
-        console.log('Error', error);
+        this.showNotification(error);
+        this.UIService.setUiSubject(false);
       });
   }
 
@@ -72,6 +82,12 @@ export class AuthService {
     this.isLoggedIn = true
     this.authChange.next(true);
     this.router.navigateByUrl('/training');
+  }
+
+  private showNotification(message: string): void {
+    this.snackbar.open(message, 'Close', {
+      duration: 3000
+    });
   }
 
 

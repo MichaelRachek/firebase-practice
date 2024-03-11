@@ -8,6 +8,9 @@ import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { AuthService } from '../auth.service';
+import { AsyncPipe } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { UIService } from '../../shared/ui.service';
 
 @Component({
   selector: 'app-signup',
@@ -20,7 +23,9 @@ import { AuthService } from '../auth.service';
     FlexLayoutModule,
     MatInput,
     MatButton,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AsyncPipe,
+    MatProgressSpinnerModule
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './signup.component.html',
@@ -30,9 +35,11 @@ export class SignupComponent implements OnInit {
   // @ts-ignore
   public maxDate: Date;
   public form!: FormGroup;
+  public isLoading$ = this.UIService.getUiSubject();
+
 
   constructor(private fb: FormBuilder,
-              private auth: AuthService) { }
+              private auth: AuthService,  private UIService: UIService) { }
 
   ngOnInit() {
     this.maxDate = new Date();
